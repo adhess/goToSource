@@ -1,0 +1,24 @@
+{
+  "manifest_version": 2,
+  "name": "Go To Source",
+  "description": "Allows to navigate directly from browser to component source code.",
+  "background": {
+    "scripts": ["background_script.js"],
+    "persistent": false
+  },
+  "version": "0.1",
+  "permissions": [
+    "tabs",
+    "http://localhost/",
+    "https://localhost/"
+  ],
+  "browser_action": {
+    "default_icon": "logo/logo_8_19.png",
+    "default_title": "go to source!"
+  },
+  "icons": {
+    "16": "logo/logo_8_16.png",
+    "48": "logo/logo_8_48.png",
+    "128": "logo/logo_8_128.png"
+  }
+}

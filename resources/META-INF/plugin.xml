@@ -1,0 +1,40 @@
+<idea-plugin>
+    <id>com.adhess.org.idea.goToSource</id>
+    <name>Go To Component Source</name>
+    <version>0.1</version>
+    <vendor email="med.yessine.b.k@gmail.com" url="http://www.adhess.org">Adhess-It</vendor>
+
+    <application-components>
+        <component>
+            <implementation-class>GoToSourceMain</implementation-class>
+        </component>
+    </application-components>
+
+    <description>This plugin will take you to the code source off a given url of your angular app.</description>
+
+
+    <change-notes>.......................................................</change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="171"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products-->
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.platform</depends>
+
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <group id="MyPlugin.SampleMenu" text="Greeting" description="Greeting menu">
+            <add-to-group group-id="MainToolBar" anchor="last"/>
+            <action id="RefreshRouterTree" class="Refresh" text="Refresh" description="Refresh the tree"/>
+        </group>
+        <!-- Add your actions here -->
+    </actions>
+
+</idea-plugin>
