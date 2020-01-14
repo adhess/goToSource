@@ -16,6 +16,20 @@
     "default_icon": "logo/logo_8_19.png",
     "default_title": "go to source!"
   },
+  "commands": {
+    "goToComponent": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Q"
+      },
+      "description": "go to source"
+    },
+    "getAllComponents": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+A"
+      },
+      "description": "get all components"
+    }
+  },
   "icons": {
     "16": "logo/logo_8_16.png",
     "48": "logo/logo_8_48.png",

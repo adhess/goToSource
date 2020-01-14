@@ -1,3 +1,5 @@
+package com.adhess.it.org.model;
+
 public class RouteModel {
     private String path;
     private String componentPath;

@@ -1,13 +1,17 @@
+package com.adhess.it.org;
+
+import com.adhess.it.org.model.ComponentDataModel;
+import com.adhess.it.org.model.RouteModel;
+import com.adhess.it.org.parser.ComponentParser;
+import com.adhess.it.org.parser.PrefixParser;
+import com.adhess.it.org.parser.RoutesParser;
 import com.google.gson.Gson;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.progress.ProgressIndicatorProvider;
-import com.intellij.openapi.progress.util.DispatchThreadProgressWindow;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
@@ -16,24 +20,26 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import org.codehaus.jettison.json.JSONArray;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public class GoToSourceMain implements ProjectComponent {
-    static List<String> prefix = new ArrayList<>();
-    static RouteModel[] routes;
-    static Project project;
+    public static List<String> prefix = new ArrayList<>();
+    public static RouteModel[] routes;
+    public static Collection<ComponentDataModel> componentsData;
+    private static Project project;
 
     @NotNull
     @Override
     public String getComponentName() {
-        return "GoToSourceMain";
+        return "com.adhess.it.org.GoToSourceMain";
     }
 
     @Override
@@ -42,12 +48,17 @@ public class GoToSourceMain implements ProjectComponent {
             @Override
             public void projectOpened(@NotNull Project project) {
                 GoToSourceMain.project = project;
+                ComponentParser.parseComponent(project);
                 PrefixParser.parseConfigurationSection(project);
-                GoToSourceMain.prefix.forEach(System.out::println);
 
                 JSONArray routes = RoutesParser.parseProject(project);
-                System.out.println(routes);
                 GoToSourceMain.routes = jsonToRouteModels(routes);
+//                System.out.println("------------ routes ------------");
+//                System.out.println(routes);
+//                System.out.println("------------ prefix ------------");
+//                GoToSourceMain.prefix.forEach(System.out::println);
+//                System.out.println("------------ components ------------");
+//                GoToSourceMain.componentsData.forEach(System.out::println);
             }
         });
 
@@ -75,6 +86,9 @@ public class GoToSourceMain implements ProjectComponent {
                                     builder.append((char) c);
                                 }
                                 String postRequest = builder.toString();
+                                int startIndex = postRequest.indexOf("/") + 1;
+                                int endIndex = postRequest.indexOf(" ", startIndex);
+                                String command = postRequest.substring(startIndex, endIndex);
                                 String url = postRequest.substring(postRequest.lastIndexOf('\n'));
                                 int slashNb = 0;
                                 for (int i = 0; i < url.length(); i++) {
@@ -83,7 +97,29 @@ public class GoToSourceMain implements ProjectComponent {
                                         break;
                                     }
                                 }
-                                searchComponentByURL(cleanURL(url));
+                                String path = searchComponentByURL(cleanURL(url));
+                                if (command.equals("goToComponent")) {
+                                    if (path != null)
+                                        openComponent(path);
+
+                                    String HEADER = "HTTP/1.1 200 OK\r\n\r\n";
+                                    OutputStream outputStream = socket.getOutputStream();
+                                    outputStream.write(HEADER.getBytes(StandardCharsets.UTF_8));
+                                    outputStream.close();
+                                    socket.close();
+                                } else if (command.equals("getAllComponents")) {
+                                    String HEADER = "HTTP/1.1 200 OK\r\n\r\n";
+                                    OutputStream outputStream = socket.getOutputStream();
+                                    outputStream.write(HEADER.getBytes(StandardCharsets.UTF_8));
+                                    for (ComponentDataModel component : componentsData) {
+                                        if (component.getPath().equals(path)) {
+                                            outputStream.write(component.getRelatedComponentSelectorName().toString().getBytes(StandardCharsets.UTF_8));
+                                        }
+                                    }
+                                    outputStream.close();
+                                    socket.close();
+                                }
+
                             } finally {
                                 socket.close();
                             }
@@ -149,7 +185,7 @@ public class GoToSourceMain implements ProjectComponent {
         return urlParts;
     }
 
-    private void searchComponentByURL(String[] paths) {
+    private String searchComponentByURL(String[] paths) {
         try {
             for (Object s : paths) {
                 System.out.print(s + " || ");
@@ -157,15 +193,15 @@ public class GoToSourceMain implements ProjectComponent {
             System.out.println();
 
             String path = getComponentPathRecursively(routes, paths, 0);
-            if (path != null)
-                openComponent(path);
             System.out.println(path);
+            return path;
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        return null;
     }
 
-    static RouteModel[] jsonToRouteModels(JSONArray routes) {
+    public static RouteModel[] jsonToRouteModels(JSONArray routes) {
         Gson gson = new Gson();
         return gson.fromJson(routes.toString(), RouteModel[].class);
     }

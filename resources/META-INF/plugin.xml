@@ -6,7 +6,7 @@
 
     <application-components>
         <component>
-            <implementation-class>GoToSourceMain</implementation-class>
+            <implementation-class>com.adhess.it.org.GoToSourceMain</implementation-class>
         </component>
     </application-components>
 
@@ -32,9 +32,14 @@
     <actions>
         <group id="MyPlugin.SampleMenu" text="Greeting" description="Greeting menu">
             <add-to-group group-id="MainToolBar" anchor="last"/>
-            <action id="RefreshRouterTree" class="Refresh" text="Refresh" description="Refresh the tree"/>
+            <action id="RefreshRouterTree" class="com.adhess.it.org.action.Refresh" text="com.adhess.it.org.action.Refresh" description="com.adhess.it.org.action.Refresh the tree"/>
         </group>
         <!-- Add your actions here -->
     </actions>
 
+    <project-components>
+        <component>
+            <implementation-class>com.adhess.it.org.GoToSourceMain</implementation-class>
+        </component>
+    </project-components>
 </idea-plugin>

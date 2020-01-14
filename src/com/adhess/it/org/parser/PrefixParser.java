@@ -1,3 +1,6 @@
+package com.adhess.it.org.parser;
+
+import com.adhess.it.org.GoToSourceMain;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -5,11 +8,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import org.apache.commons.collections.list.TreeList;
-import org.codehaus.jettison.json.JSONException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PrefixParser {
     public static void parseConfigurationSection(Project project) {

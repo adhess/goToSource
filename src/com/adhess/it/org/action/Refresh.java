@@ -1,3 +1,8 @@
+package com.adhess.it.org.action;
+
+import com.adhess.it.org.GoToSourceMain;
+import com.adhess.it.org.parser.PrefixParser;
+import com.adhess.it.org.parser.RoutesParser;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -6,9 +11,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.Messages;
-import io.reactivex.functions.Consumer;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
 import org.codehaus.jettison.json.JSONArray;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,3 +1,5 @@
+package com.adhess.it.org.parser;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
