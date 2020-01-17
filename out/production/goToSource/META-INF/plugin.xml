@@ -37,9 +37,4 @@
         <!-- Add your actions here -->
     </actions>
 
-    <project-components>
-        <component>
-            <implementation-class>com.adhess.it.org.GoToSourceMain</implementation-class>
-        </component>
-    </project-components>
 </idea-plugin>

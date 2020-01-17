@@ -6,11 +6,20 @@
     "scripts": ["background_script.js"],
     "persistent": false
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "js": ["contentScript.js"]
+    }
+  ],
   "version": "0.1",
   "permissions": [
     "tabs",
     "http://localhost/",
-    "https://localhost/"
+    "https://localhost/",
+    "<all_urls>",
+    "contextMenus"
   ],
   "browser_action": {
     "default_icon": "logo/logo_8_19.png",
@@ -34,5 +43,6 @@
     "16": "logo/logo_8_16.png",
     "48": "logo/logo_8_48.png",
     "128": "logo/logo_8_128.png"
-  }
+  },
+  "content_security_policy":"script-src 'self' https://apis.google.com; object-src 'self'"
 }

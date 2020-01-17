@@ -27,8 +27,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class GoToSourceMain implements ProjectComponent {
     public static List<String> prefix = new ArrayList<>();
@@ -89,37 +89,46 @@ public class GoToSourceMain implements ProjectComponent {
                                 int startIndex = postRequest.indexOf("/") + 1;
                                 int endIndex = postRequest.indexOf(" ", startIndex);
                                 String command = postRequest.substring(startIndex, endIndex);
-                                String url = postRequest.substring(postRequest.lastIndexOf('\n'));
-                                int slashNb = 0;
-                                for (int i = 0; i < url.length(); i++) {
-                                    if (url.charAt(i) == '/' && ++slashNb >= 3) {
-                                        url = url.substring(i);
-                                        break;
-                                    }
-                                }
-                                String path = searchComponentByURL(cleanURL(url));
-                                if (command.equals("goToComponent")) {
-                                    if (path != null)
-                                        openComponent(path);
+                                if (command.equals("goToComponentBySelector")) {
+                                    String selector = postRequest.substring(postRequest.lastIndexOf('\n')+1);
+                                    componentsData.forEach(component -> {
+                                        if (component.getSelector().equals(selector)) {
+                                            openComponent(component.getPath());
+                                        }
+                                    });
 
-                                    String HEADER = "HTTP/1.1 200 OK\r\n\r\n";
-                                    OutputStream outputStream = socket.getOutputStream();
-                                    outputStream.write(HEADER.getBytes(StandardCharsets.UTF_8));
-                                    outputStream.close();
-                                    socket.close();
-                                } else if (command.equals("getAllComponents")) {
-                                    String HEADER = "HTTP/1.1 200 OK\r\n\r\n";
-                                    OutputStream outputStream = socket.getOutputStream();
-                                    outputStream.write(HEADER.getBytes(StandardCharsets.UTF_8));
-                                    for (ComponentDataModel component : componentsData) {
-                                        if (component.getPath().equals(path)) {
-                                            outputStream.write(component.getRelatedComponentSelectorName().toString().getBytes(StandardCharsets.UTF_8));
+                                } else {
+                                    String url = postRequest.substring(postRequest.lastIndexOf('\n'));
+                                    int slashNb = 0;
+                                    for (int i = 0; i < url.length(); i++) {
+                                        if (url.charAt(i) == '/' && ++slashNb >= 3) {
+                                            url = url.substring(i);
+                                            break;
                                         }
                                     }
-                                    outputStream.close();
-                                    socket.close();
-                                }
+                                    String path = searchComponentByURL(cleanURL(url));
+                                    if (command.equals("goToComponent")) {
+                                        if (path != null)
+                                            openComponent(path);
 
+                                        String HEADER = "HTTP/1.1 200 OK\r\n\r\n";
+                                        OutputStream outputStream = socket.getOutputStream();
+                                        outputStream.write(HEADER.getBytes(StandardCharsets.UTF_8));
+                                        outputStream.close();
+                                        socket.close();
+                                    } else if (command.equals("getAllComponents")) {
+                                        String HEADER = "HTTP/1.1 200 OK\r\n\r\n";
+                                        OutputStream outputStream = socket.getOutputStream();
+                                        outputStream.write(HEADER.getBytes(StandardCharsets.UTF_8));
+                                        for (ComponentDataModel component : componentsData) {
+                                            if (component.getPath().equals(path)) {
+                                                outputStream.write(component.getRelatedComponentSelectorName().toString().getBytes(StandardCharsets.UTF_8));
+                                            }
+                                        }
+                                        outputStream.close();
+                                        socket.close();
+                                    }
+                                }
                             } finally {
                                 socket.close();
                             }
