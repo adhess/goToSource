@@ -16,7 +16,7 @@ function goToComponent() {
 
 var numberResponse = 0;
 
-function getScreenRelatedComponent() {
+function getScreenRelatedComponent(command) {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         var url = tabs[0].url;
         console.log(url);
@@ -28,13 +28,16 @@ function getScreenRelatedComponent() {
                 if (this.status === 200 && this.readyState === 4 && this.responseText) {
                     var responseText = this.responseText;
                     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                        chrome.tabs.sendMessage(tabs[0].id, {relatedComponents: responseText, target: 'selectors'}, function (response) {
+                        chrome.tabs.sendMessage(tabs[0].id, {
+                            relatedComponents: responseText,
+                            target: 'selectors'
+                        }, function (response) {
                             console.log("Response: ", response);
                         });
                     });
                 }
             };
-            xhr.open('POST', 'http://localhost:' + (43872 + i) + '/getAllComponents', true);
+            xhr.open('POST', 'http://localhost:' + (43872 + i) + '/' + command, true);
             xhr.setRequestHeader('Content-type', 'text/plain');
             xhr.send(url + '.');
         }
@@ -42,10 +45,13 @@ function getScreenRelatedComponent() {
 }
 
 chrome.commands.onCommand.addListener(function (command) {
+    console.log(command);
     if (command.toString() === 'goToComponent') {
         goToComponent();
+    } else if (command.toString() === 'getAllRelatedComponents') {
+        getScreenRelatedComponent('getAllRelatedComponents')
     } else if (command.toString() === 'getAllComponents') {
-        getScreenRelatedComponent()
+        getScreenRelatedComponent('getAllComponents')
     }
 });
 
@@ -63,7 +69,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             xhr.setRequestHeader('Content-type', 'text/plain');
             xhr.send(msg.selector + '.');
         }
-        alert(msg.selector);
     }
     sendResponse("200");
 });

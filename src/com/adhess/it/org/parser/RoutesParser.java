@@ -18,8 +18,8 @@ public class RoutesParser {
     /**
      * parse the project to get the router tree
      * A --> B
-     *    \-> C --> M
-     *           \-> N
+     * \-> C --> M
+     * \-> N
      *
      * @return router tree
      */
@@ -27,6 +27,7 @@ public class RoutesParser {
         Collection<VirtualFile> filesCollection = FilenameIndex
                 .getVirtualFilesByName(project, "app.module.ts", GlobalSearchScope.allScope(project));
         for (VirtualFile file : filesCollection) {
+            if (file.getPresentableUrl().contains("node_module")) continue;
             PsiFile ff = PsiManager.getInstance(project).findFile(file);
             for (PsiElement c = ff.getFirstChild(); c != null; c = c.getNextSibling()) {
                 if (c.getClass().getSimpleName().equals("TypeScriptClassImpl")) {

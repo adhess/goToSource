@@ -1,6 +1,7 @@
 package com.adhess.it.org.action;
 
 import com.adhess.it.org.GoToSourceMain;
+import com.adhess.it.org.parser.ComponentParser;
 import com.adhess.it.org.parser.PrefixParser;
 import com.adhess.it.org.parser.RoutesParser;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -33,8 +34,17 @@ public class Refresh extends AnAction {
                             routes.set(RoutesParser.parseProject(e.getProject()));
                             System.out.println(routes);
                             GoToSourceMain.routes = GoToSourceMain.jsonToRouteModels(routes.get());
+                            progressIndicator.setText("Parse Prefix");
+                            PrefixParser.parseConfigurationSection(e.getProject());
+                            System.out.println(GoToSourceMain.prefix);
+                            progressIndicator.setText("Parse Components");
+                            ComponentParser.parseComponent(e.getProject());
+                            System.out.println(GoToSourceMain.componentsData);
+
                             ApplicationManager.getApplication().invokeLater(() -> {
-                                Messages.showMessageDialog(routes.toString(), "Route Tree", Messages.getInformationIcon());
+                                Messages.showMessageDialog(routes.toString()
+                                        + "\n-----------------------\n" + GoToSourceMain.componentsData.toString()
+                                        + "\n-----------------------\n" + GoToSourceMain.prefix.toString(), "Route Tree", Messages.getInformationIcon());
                             });
                         });
                     }

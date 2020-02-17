@@ -1,6 +1,6 @@
 package com.adhess.it.org;
 
-import com.adhess.it.org.model.ComponentDataModel;
+import com.adhess.it.org.model.ComponentModel;
 import com.adhess.it.org.model.RouteModel;
 import com.adhess.it.org.parser.ComponentParser;
 import com.adhess.it.org.parser.PrefixParser;
@@ -20,7 +20,9 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import org.codehaus.jettison.json.JSONArray;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -28,12 +30,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class GoToSourceMain implements ProjectComponent {
     public static List<String> prefix = new ArrayList<>();
     public static RouteModel[] routes;
-    public static Collection<ComponentDataModel> componentsData;
+    public static Collection<ComponentModel> componentsData;
     private static Project project;
 
     @NotNull
@@ -79,7 +80,7 @@ public class GoToSourceMain implements ProjectComponent {
                             Socket socket = serverSocket.accept();
                             try {
                                 BufferedReader reader = new BufferedReader(
-                                        new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                                        new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                                 StringBuilder builder = new StringBuilder();
                                 int c;
                                 while ((c = reader.read()) >= 0 && reader.ready()) {
@@ -93,7 +94,7 @@ public class GoToSourceMain implements ProjectComponent {
                                     String selector = postRequest.substring(postRequest.lastIndexOf('\n')+1);
                                     componentsData.forEach(component -> {
                                         if (component.getSelector().equals(selector)) {
-                                            openComponent(component.getPath());
+                                            openComponent(component.getComponentPath());
                                         }
                                     });
 
@@ -107,26 +108,36 @@ public class GoToSourceMain implements ProjectComponent {
                                         }
                                     }
                                     String path = searchComponentByURL(cleanURL(url));
-                                    if (command.equals("goToComponent")) {
-                                        if (path != null)
-                                            openComponent(path);
+                                    String HEADER = "HTTP/1.1 200 OK\r\n\r\n";
+                                    OutputStream outputStream = socket.getOutputStream();
+                                    outputStream.write(HEADER.getBytes(StandardCharsets.UTF_8));
 
-                                        String HEADER = "HTTP/1.1 200 OK\r\n\r\n";
-                                        OutputStream outputStream = socket.getOutputStream();
-                                        outputStream.write(HEADER.getBytes(StandardCharsets.UTF_8));
-                                        outputStream.close();
-                                        socket.close();
-                                    } else if (command.equals("getAllComponents")) {
-                                        String HEADER = "HTTP/1.1 200 OK\r\n\r\n";
-                                        OutputStream outputStream = socket.getOutputStream();
-                                        outputStream.write(HEADER.getBytes(StandardCharsets.UTF_8));
-                                        for (ComponentDataModel component : componentsData) {
-                                            if (component.getPath().equals(path)) {
-                                                outputStream.write(component.getRelatedComponentSelectorName().toString().getBytes(StandardCharsets.UTF_8));
+                                    switch (command) {
+                                        case "goToComponent":
+                                            if (path != null) {
+                                                openComponent(path);
                                             }
-                                        }
-                                        outputStream.close();
-                                        socket.close();
+                                            outputStream.close();
+                                            socket.close();
+                                            break;
+                                        case "getAllRelatedComponents":
+                                            for (ComponentModel component : componentsData) {
+                                                if (component.getComponentPath().equals(path)) {
+                                                    outputStream.write(component.getRelatedComponentSelectorName().toString().getBytes(StandardCharsets.UTF_8));
+                                                }
+                                            }
+                                            outputStream.close();
+                                            socket.close();
+                                            break;
+                                        case "getAllComponents":
+                                            ArrayList<String> ll = new ArrayList<>();
+                                            for (ComponentModel component : componentsData) {
+                                                ll.add(component.getSelector());
+                                            }
+                                            outputStream.write(ll.toString().getBytes(StandardCharsets.UTF_8));
+                                            outputStream.close();
+                                            socket.close();
+                                            break;
                                     }
                                 }
                             } finally {
@@ -228,7 +239,7 @@ public class GoToSourceMain implements ProjectComponent {
         if (routes == null) return null;
         if (paths.length - 1 < index) {
             String result = searchEmptyPath(routes);
-            if (result != null) return result;
+            return result;
         } else
             for (RouteModel route : routes) {
                 if (route.getPath().isEmpty() && route.getChildren() != null) {
