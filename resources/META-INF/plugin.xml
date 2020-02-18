@@ -32,7 +32,11 @@
     <actions>
         <group id="MyPlugin.SampleMenu" text="Greeting" description="Greeting menu">
             <add-to-group group-id="MainToolBar" anchor="last"/>
-            <action id="RefreshRouterTree" class="com.adhess.it.org.action.Refresh" text="com.adhess.it.org.action.Refresh" description="com.adhess.it.org.action.Refresh the tree"/>
+            <action id="RefreshRouterTree"
+                    icon="/icons/logo_8_16.png"
+                    class="com.adhess.it.org.action.Refresh"
+                    text="Refresh the Routes Tree"
+                    description="Refresh the Routes tree"/>
         </group>
         <!-- Add your actions here -->
     </actions>

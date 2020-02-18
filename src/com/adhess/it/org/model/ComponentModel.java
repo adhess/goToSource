@@ -1,9 +1,8 @@
 package com.adhess.it.org.model;
 
-import com.google.gson.Gson;
-import kotlin.Pair;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 public class ComponentModel extends RoutingModuleModel {
@@ -41,11 +40,15 @@ public class ComponentModel extends RoutingModuleModel {
 
     @Override
     public String toString() {
-        ArrayList<Object> ll = new ArrayList<>();
-        ll.add(new Pair<>("componentPath", componentPath));
-        ll.add(new Pair<>("selector", selector));
-        if (relatedComponentSelectorName.size() > 0)
-            ll.add(new Pair<>("relatedComponentSelectorName", relatedComponentSelectorName));
-        return new Gson().toJson(ll);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("componentPath", componentPath);
+            jsonObject.put("selector", selector);
+            if (relatedComponentSelectorName.size() > 0)
+                jsonObject.put("relatedComponents", relatedComponentSelectorName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
     }
 }

@@ -42,9 +42,14 @@ public class Refresh extends AnAction {
                             System.out.println(GoToSourceMain.componentsData);
 
                             ApplicationManager.getApplication().invokeLater(() -> {
-                                Messages.showMessageDialog(routes.toString()
-                                        + "\n-----------------------\n" + GoToSourceMain.componentsData.toString()
-                                        + "\n-----------------------\n" + GoToSourceMain.prefix.toString(), "Route Tree", Messages.getInformationIcon());
+                                String message = "\n-----------------------\nRoutes\n-----------------------\n"
+                                        + routes.toString()
+                                        + "\n-----------------------\nComponents\n-----------------------\n"
+                                        + GoToSourceMain.componentsData.toString()
+                                        + "\n-----------------------\nPrefix\n-----------------------\n"
+                                        + GoToSourceMain.prefix.toString();
+
+                                Messages.showMessageDialog(message, "Route Tree", Messages.getInformationIcon());
                             });
                         });
                     }
